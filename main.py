@@ -3,5 +3,7 @@ import sys
 
 
 if __name__ == '__main__':
-    app = QtWidgets.QApplication(['aaa'])
+    app = QtWidgets.QApplication(sys.argv)
+    ex = QtWidgets.QWidget()
+    ex.show()
     sys.exit(app.exec())
