@@ -2,7 +2,7 @@ import requests
 from PyQt5.QtCore import QByteArray
 
 
-def get_map_image(toponym_to_find):
+def get_toponym(toponym_to_find):
     geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
 
     geocoder_params = {
@@ -13,28 +13,27 @@ def get_map_image(toponym_to_find):
     response = requests.get(geocoder_api_server, params=geocoder_params)
 
     if not response:
-        # обработка ошибочной ситуации
         pass
 
-    # Преобразуем ответ в json-объект
     json_response = response.json()
-    # Получаем первый топоним из ответа геокодера.
     toponym = json_response["response"]["GeoObjectCollection"][
         "featureMember"][0]["GeoObject"]
-    # Координаты центра топонима:
     toponym_coodrinates = toponym["Point"]["pos"]
-    # Долгота и широта:
     toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
 
+    return get_map_image(float(toponym_longitude), float(toponym_lattitude))
+
+
+def get_map_image(longitude, lattitude):
     delta = "0.05"
 
-    # Собираем параметры для запроса к StaticMapsAPI:
     map_params = {
-        "ll": ",".join([toponym_longitude, toponym_lattitude]),
+        "ll": ",".join([str(longitude), str(lattitude)]),
         "spn": ",".join([delta, delta]),
         "l": "map"
     }
 
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     response = requests.get(map_api_server, params=map_params)
+
     return QByteArray(response.content)
